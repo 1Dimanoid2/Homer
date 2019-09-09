@@ -1,0 +1,128 @@
+package bus;
+
+class bus 
+{
+    private final String positon;
+    private final int startWork;
+    private final long salary;
+    public int getstartWork() { return startWork; }
+    public long getsalary() { return salary; }
+    public String getpositon() { return positon; }
+    public bus(int startWork, long salary, String positon)
+    {
+        this.startWork = startWork;
+        this.salary = salary;
+        this.positon = positon;
+    }
+    public String print()
+    {
+
+        return 
+                "Должность'" + positon + '\'' +
+                ", Работает с " + startWork +
+                ", Зарплата " + salary;
+    }
+public boolean startWork(int year)
+    {
+        if (startWork<=year)
+        {
+                return true;
+        }
+        return false;
+    }
+
+
+public void position(String positons)
+    {
+        if (positons == positon)
+        {
+                 System.out.println(print());
+        }
+    }
+}
+
+
+class busses extends bus
+{
+    private 
+    String name;
+    public busses(int startWork, long salary, String positon, String name) 
+    {
+        super(startWork,salary,positon);
+        this.name = name;
+    }
+    @Override
+    public String print()
+    {
+  return   super.print() + ", Имя сотрудника " + name + '\'' ;
+    }
+public void salary()
+    {
+        if (super.getsalary()>=10000)
+        {
+                 System.out.println(print());
+        }
+    }
+      
+
+
+    @Override
+    public boolean startWork(int year)
+    {
+        if (super.startWork(year))
+        {
+            System.out.println(print());
+              return true;
+        }
+        return true;
+    }
+
+}
+public class buss {
+    public static void main(String[] args) {
+        int kbas=6; // busses amount       
+        busses b1;
+        busses BP[];  
+        BP=new busses[kbas];  
+        b1=new busses
+        (
+                2015, // год поступления на работу
+                15000, // зарплата
+                "Бухгалтер",// должность
+                "Боб"// Инициалы 
+        ); 
+        BP[0]=b1;
+        BP[1]=new busses(2015, 15000,"Бухгалтер", "Стив");
+        BP[2]=new busses(2004, 30000,"Начальник", "Тони");
+        BP[3]=new busses(2016, 5000,"Программист", "Питер");
+        BP[4]=new busses(2007, 5000,"Сантехник", "Виктория");
+        BP[5]=new busses(2008, 7000,"Бухгалтер", "Киран");
+        System.out.println("Все ");
+        for(int k=0;k<kbas;k++)
+        {
+            String str = BP[k].print();
+            System.out.println(str);
+        }
+        System.out.println("\nСотрудники бугалтера");
+        String position="Бухгалтер";
+        for(int k=0;k<kbas;k++)
+        {
+        BP[k].position(position);
+        }
+
+        System.out.println("\nСписок рабочих, у которых зарплата больше 10 тысяч");
+        for(int k=0;k<kbas;k++)
+        {
+        BP[k].salary();
+        }
+        System.out.println("\nСписок рабочих, которые работают больше 10 лет:");
+        for(int k=0;k<kbas;k++)
+        {
+            boolean str = BP[k].startWork(2009);
+            if (!str)
+            {
+                System.out.println(str);
+            }
+        }
+    }
+}

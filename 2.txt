@@ -1,0 +1,179 @@
+while (checkexit)
+            {
+                Console.WriteLine("1. Сериализация");
+                Console.WriteLine("2. Десериализация");
+                Console.WriteLine("3. Задание 1");
+                Console.WriteLine("4. Задание 2");
+                Console.WriteLine("5. Задание 3");
+                Console.WriteLine("6. Выход\n");
+                int i = input("Выберите пункт меню", 6);
+                switch (i)
+                {
+                    case 1:
+                        int check = input("При сериализации будет сгенерирован новый рандомный список рейсов. Вы уверены? 1 - Подтвердить выбор. 2 - Отменить выбор.", 2);
+                        Console.Clear();
+                        if (check == 1)
+                        {
+                            Serial(xmlfile, aeroflot, destinations);
+                        }
+                        break;
+                    case 2:
+                        Console.Clear();
+                        aeroflot = Deserialize(xmlfile, aeroflot);
+                        break;
+                    case 3:
+                        Console.Clear();
+                        Destination(aeroflot, destinations);
+                        break;
+                    case 4:
+                        Console.Clear();
+                        Weekdays(aeroflot, week);
+                        break;
+                    case 5:
+                        Console.Clear();
+                        Task3(aeroflot, week);
+                        break;
+                    default:
+                        checkexit = false;
+                        break;
+                }
+            }
+        }
+        static List<string> GetWeekdays(Random rand)
+        {
+            List<string> weekdays = new List<string>() { "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье" };
+            int n = rand.Next(6);
+            for (int i = 0; i < n; i++)
+            {
+                weekdays.RemoveAt(rand.Next(weekdays.Count));
+            }
+            return weekdays;
+        }
+        public static int input(string welcomestr, int upperLimit)
+        {
+            while (true)
+            {
+                Console.Write(welcomestr + " ");
+                try
+                {
+                    int number = Int32.Parse(Console.ReadLine());
+                    if (number < 0 || number > upperLimit)
+                    {
+                        Console.Write("Вы ввели неверное число. Попробуйте заново. \n");
+                        continue;
+                    }
+                    return number;
+                }
+                catch { Console.Write("Вы ввели неверное число. Попробуйте заново. \n"); }
+            }
+        }
+        public static int[] inputTime(string welcomestr)
+        {
+            while (true)
+            {
+                Console.Write(welcomestr);
+                try
+                {
+                    string time = Console.ReadLine();
+                    string[] timeMass = time.Split(':');
+                    int h = Int32.Parse(timeMass[0]);
+                    int m = Int32.Parse(timeMass[1]);
+                    if (h < 0 || h > 23 || m < 0 || m > 59 || timeMass.Length != 2)
+                    {
+                        Console.Write("Вы ввели неверное время. Попробуйте заново. Пример ввода: 10:00\n");
+                        continue;
+                    }
+                    return new int[] { h, m };
+                }
+                catch { Console.Write("Вы ввели неверное время. Попробуйте заново. Пример ввода: 10:00\n"); }
+            }
+        }
+        static void Serial(string xmlfile, List<Aeroflot> aeroflot, List<string> destinations)
+        {
+            Console.WriteLine();
+            Random rand = new Random();
+            List<string> flightNumbers = new List<string>() { "ИК-755", "ГЛ-3264", "У6-106", "ИК-9213", "ИК-79", "ИК-9151", "РД-171" };
+            List<string> aircraftTypes = new List<string>() { "Airbus-A300", "Як-40", "Ту-104", "Ту-154", "Ту-144", "Ту-214", "Ил-114" };
+            List<Time> departureTimes = new List<Time>() { new Time(10, 0), new Time(11, 0), new Time(15, 30), new Time(22, 10), new Time(12, 0), new Time(9, 0), new Time(8, 0) };
+            List<List<string>> weekdays = new List<List<string>>() { GetWeekdays(rand), GetWeekdays(rand), GetWeekdays(rand), GetWeekdays(rand), GetWeekdays(rand), GetWeekdays(rand), GetWeekdays(rand) };
+            aeroflot = new List<Aeroflot>();
+            for (int i = 0; i < flightNumbers.Count; i++)
+            {
+                aeroflot.Add(new Aeroflot(
+                    destinations[rand.Next(destinations.Count)],
+                    flightNumbers[i],
+                    aircraftTypes[rand.Next(aircraftTypes.Count)],
+                    departureTimes[rand.Next(departureTimes.Count)],
+                    weekdays[rand.Next(weekdays.Count)]
+                   ));
+            }
+            Console.WriteLine("Cгенерированный список:");
+            Aeroflot.printAll(aeroflot);
+            XmlSerializer xml = new XmlSerializer(typeof(List<Aeroflot>));
+            using (var fStream = new FileStream(xmlfile, FileMode.Create))
+            {
+                xml.Serialize(fStream, aeroflot);
+                Console.WriteLine("\nДанные сериализированы в xml.");
+            }
+            aeroflot.RemoveRange(0, aeroflot.Count);
+            Console.WriteLine("Сериализация выполнена!");
+            Console.ReadKey();
+            Console.Clear();
+        }
+        static List<Aeroflot> Deserialize(string xmlfile, List<Aeroflot> aeroflot)
+        {
+            XmlSerializer xml = new XmlSerializer(typeof(List<Aeroflot>));
+            using (FileStream fs = new FileStream(xmlfile, FileMode.OpenOrCreate))
+            {
+                aeroflot = (List<Aeroflot>)xml.Deserialize(fs);
+                Console.WriteLine("Данные десериализированы из xml.");
+            }
+            Console.WriteLine("Восстановлено объектов: " + aeroflot.Count);
+            Console.WriteLine();
+            Console.WriteLine("Список после десериализации:");
+            Aeroflot.printAll(aeroflot);
+            Console.ReadKey();
+            Console.Clear();
+            return aeroflot;
+        }
+        static void Destination(List<Aeroflot> aeroflot, List<string> destinations)
+        {
+            Console.WriteLine("1 Задание: Вывести список рейсов для заданного пункта назначения");
+            Console.WriteLine("Номер\tПункт назначения");
+            for (int i = 0; i < destinations.Count; i++)
+            {
+                Console.WriteLine(i + "\t" + destinations[i]);
+            }
+            int number = input("Введите номер пункта назначения: ", destinations.Count - 1);
+            Aeroflot.PrintSpisokForDestination(destinations[number], aeroflot);
+            Console.ReadKey();
+            Console.Clear();
+        }
+        static void Weekdays(List<Aeroflot> aeroflot, List<string> week)
+        {
+            Console.WriteLine("2 Задание: Вывести список рейсов для заданного дня недели");
+            Console.WriteLine("Номер\tДень недели");
+            for (int i = 0; i < week.Count; i++)
+            {
+                Console.WriteLine(i + "\t" + week[i]);
+            }
+            int number = input("Введите номер дня недели: ", week.Count - 1);
+            Aeroflot.PrintSpisokForWeekday(week[number], aeroflot);
+            Console.ReadKey();
+            Console.Clear();
+        }
+        static void Task3(List<Aeroflot> aeroflot, List<string> week)
+        {
+            Console.WriteLine("3 Задание: Вывести список рейсов для заданного дня недели, время вылета для которых больше заданного");
+            Console.WriteLine("Номер\tДень недели");
+            for (int i = 0; i < week.Count; i++)
+            {
+                Console.WriteLine(i + "\t" + week[i]);
+            }
+            int number = input("Введите номер дня недели: ", week.Count - 1);
+            Aeroflot.PrintSpisokForDestinationAndTime(week[number], inputTime("Введите время вылета: "), aeroflot);
+            Console.ReadKey();
+            Console.Clear();
+        }
+    }
+}
